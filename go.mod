@@ -14,6 +14,7 @@ require (
 	github.com/buicongtan1997/protoc-gen-swagger-config v0.0.0-20200705084907-1342b78c1a7e
 	github.com/daixiang0/gci v0.8.2
 	github.com/dgraph-io/badger/v2 v2.2007.3
+	github.com/gfanton/go-libp2p-pubsub v0.9.4-0.20230704150835-e86b394f6ef5
 	github.com/gofrs/uuid v4.3.1+incompatible
 	github.com/gogo/protobuf v1.3.2
 	github.com/golang/protobuf v1.5.3
