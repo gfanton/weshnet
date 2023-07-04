@@ -10,11 +10,13 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+	"unsafe"
 
-	pubsub "github.com/gfanton/go-libp2p-pubsub"
+	pubsub_fix "github.com/gfanton/go-libp2p-pubsub"
 	ds "github.com/ipfs/go-datastore"
 	ds_sync "github.com/ipfs/go-datastore/sync"
 	ipfs_interface "github.com/ipfs/interface-go-ipfs-core"
+	pubsub "github.com/libp2p/go-libp2p-pubsub"
 	"github.com/libp2p/go-libp2p/core/crypto"
 	"github.com/libp2p/go-libp2p/core/event"
 	"github.com/libp2p/go-libp2p/core/host"
@@ -225,9 +227,9 @@ func (opts *Opts) applyDefaults(ctx context.Context) error {
 		var err error
 
 		rng := rand.New(rand.NewSource(time.Now().UnixNano()))
-		popts := []pubsub.Option{
-			pubsub.WithMessageSigning(true),
-			pubsub.WithPeerExchange(true),
+		popts := []pubsub_fix.Option{
+			pubsub_fix.WithMessageSigning(true),
+			pubsub_fix.WithPeerExchange(true),
 		}
 
 		backoffstrat := backoff.NewExponentialBackoff(
@@ -242,13 +244,15 @@ func (opts *Opts) applyDefaults(ctx context.Context) error {
 		}
 
 		adaptater := tinder.NewDiscoveryAdaptater(opts.Logger.Named("disc"), opts.TinderService)
-		popts = append(popts, pubsub.WithDiscovery(adaptater, pubsub.WithDiscoverConnector(backoffconnector)))
+		popts = append(popts, pubsub_fix.WithDiscovery(adaptater, pubsub_fix.WithDiscoverConnector(backoffconnector)))
 
 		// pubsub.DiscoveryPollInterval = m.Node.Protocol.PollInterval
-		opts.PubSub, err = pubsub.NewGossipSub(ctx, opts.Host, popts...)
+		ps, err := pubsub_fix.NewGossipSub(ctx, opts.Host, popts...)
 		if err != nil {
 			return fmt.Errorf("unable to init gossipsub: %w", err)
 		}
+
+		opts.PubSub = (*pubsub.PubSub)(unsafe.Pointer(ps))
 	}
 
 	if opts.OrbitDB == nil {
