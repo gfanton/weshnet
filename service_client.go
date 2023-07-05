@@ -101,7 +101,7 @@ func NewPersistentServiceClient(path string) (ServiceClient, error) {
 	mrepo := ipfs_mobile.NewRepoMobile(path, repo)
 	mnode, err := ipfsutil.NewIPFSMobile(context.TODO(), mrepo, &ipfsutil.MobileOptions{
 		ExtraOpts: map[string]bool{
-			"pubsub": true,
+			"pubsub": false,
 		},
 	})
 	if err != nil {
